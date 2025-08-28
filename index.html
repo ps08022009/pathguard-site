@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Guard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #f75c03; 
+            --secondary-color: #2c3e50; 
+            --background-color: #1a232c; 
+            --text-color: #e4e7eb; 
+            --card-bg: #27303c; 
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px rgba(247, 92, 3, 0.2);
+        }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, var(--background-color), var(--secondary-color), var(--card-bg));
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            opacity: 0.8;
+            z-index: -1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 0.8rem;
+            background: linear-gradient(45deg, var(--primary-color), #ff9a00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--primary-color);
+            color: var(--background-color);
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 20px rgba(247, 92, 3, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(247, 92, 3, 0.5);
+        }
+
+        #theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            z-index: 10;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+
+        #theme-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .section {
+            padding: 5rem 1.5rem;
+            max-width: 1200px;
+            margin: auto;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .section-description {
+            text-align: center;
+            margin-bottom: 4rem;
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: var(--text-color);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 2.5rem;
+            border-radius: 20px;
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s, box-shadow 0.4s, background 0.4s;
+        }
+        .stat-box:hover {
+            transform: translateY(-15px) scale(1.05);
+            background: var(--secondary-color);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+        .stat-box h3 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        .stat-box p {
+            color: var(--text-color);
+        }
+
+        .branches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .branch-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.4s, box-shadow 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideInUp 1s ease forwards;
+        }
+
+        .branch-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .branch-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .branch-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .branch-card-content {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .branch-card-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 2.5rem;
+            font-size: 0.9rem;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 5px rgba(247, 92, 3, 0.5), 0 0 10px rgba(247, 92, 3, 0.2); }
+            100% { text-shadow: 0 0 15px rgba(247, 92, 3, 0.8), 0 0 25px rgba(247, 92, 3, 0.4); }
+        }
+
+        .animate-hero-text {
+            animation: fadeIn 1.5s ease-out forwards;
+        }
+        .animate-hero-text:nth-of-type(1) { animation-delay: 0.3s; }
+        .animate-hero-text:nth-of-type(2) { animation-delay: 0.6s; }
+
+        .animate-hero-btn {
+            animation: popIn 1s ease-out forwards;
+            animation-delay: 1s;
+        }
+
+        .animate-stat:nth-child(1) { animation-delay: 0.2s; }
+        .animate-stat:nth-child(2) { animation-delay: 0.4s; }
+        .animate-stat:nth-child(3) { animation-delay: 0.6s; }
+
+
+        body.light-mode {
+            --primary-color: #2c3e50;
+            --secondary-color: #e4e7eb;
+            --background-color: #f0f2f5;
+            --text-color: #1a232c;
+            --card-bg: #ffffff;
+        }
+
+        body.light-mode h1,
+        body.light-mode h2,
+        body.light-mode h3 {
+            color: var(--primary-color);
+            text-shadow: none;
+        }
+
+        body.light-mode .hero h1 {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: none;
+        }
+
+        body.light-mode .btn {
+            color: var(--card-bg);
+            background: var(--primary-color);
+            box-shadow: 0 4px 20px rgba(44, 62, 80, 0.3);
+        }
+
+        body.light-mode .btn:hover {
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.5);
+        }
+
+        body.light-mode .stat-box {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .stat-box:hover {
+            background: #e4e7eb;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-mode .branch-card {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="light-mode">
+
+    <header class="hero">
+        <div class="background-animation"></div>
+        <div class="hero-content">
+            <h1 class="animate-hero-text">Path Guard</h1>
+            <p class="animate-hero-text">Preparing kids and teens with vital safety drills through interactive learning.</p>
+            <a href="https://aaronshen.itch.io/path-guard" target="_blank" class="btn animate-hero-btn">Play on Itch.io</a>
+        </div>
+        <button id="theme-toggle">☀️</button>
+    </header>
+
+    <main>
+        <section id="about" class="section">
+            <h2 class="section-title">About Path Guard</h2>
+            <p class="section-description">
+                Path Guard is an engaging educational game built to teach children and teens
+                how to respond safely during active threat situations. By combining
+                interactive gameplay with real-world preparedness strategies, Path Guard
+                helps youth build confidence and knowledge in a safe, supportive way.
+            </p>
+            <div class="stats-container">
+                <div class="stat-box animate-stat"><h3>80+</h3><p>Active Users</p></div>
+                <div class="stat-box animate-stat"><h3>11</h3><p>Library Branches</p></div>
+                <div class="stat-box animate-stat"><h3>1 Goal</h3><p>Expand Nationwide</p></div>
+            </div>
+        </section>
+
+        <section id="branches" class="section">
+            <h2 class="section-title">Our Library Partners</h2>
+            <p class="section-description">We are proud to be available at the following library branches, bringing safety education to communities across the region.</p>
+            <div class="branches-grid">
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        © 2025 Path Guard | Empowering youth through safety and preparedness
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const branchesData = [
+                { name: 'Allendale', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/Allendale-front-e1537307461515.jpg' },
+                { name: 'Hastings', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/Hastings-full-900x555.jpg' },
+                { name: 'Hill Avenue', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/Hill-entrance-900x555.jpg' },
+                { name: 'Jefferson Branch', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/JeffersonPhoto2-1110x555.jpeg' },
+                { name: 'La Pintoresca', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/LaPintoresca-full.jpg' },
+                { name: 'Lamanda Park', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/Lamanda-entrance-bench-900x555.jpg' },
+                { name: 'Linda Vista', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/LindaVista-full-900x555.jpg' },
+                { name: 'San Rafael', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/SanRafael-exterior-patio-900x555.jpg' },
+                { name: 'Santa Catalina', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/SantaCatalina-full-300x162.jpg' },
+                { name: 'Villa Park', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/VillaParke-full-900x555.jpg' },
+                { name: 'Central Library', imageUrl: 'https://www.cityofpasadena.net/library/wp-content/uploads/sites/11/Central-Library-East-Angle-e1537307507928-1110x555.jpg' }
+      ];
+
+            const branchesContainer = document.querySelector('.branches-grid');
+            
+            branchesData.forEach((branch, index) => {
+                const card = document.createElement('div');
+                card.className = 'branch-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                const img = document.createElement('img');
+                img.src = branch.imageUrl;
+                img.alt = `Image for ${branch.name} branch`;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'branch-card-content';
+
+                const h3 = document.createElement('h3');
+                h3.textContent = branch.name;
+
+                contentDiv.appendChild(h3);
+                card.appendChild(img);
+                card.appendChild(contentDiv);
+
+                branchesContainer.appendChild(card);
+            });
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => observer.observe(section));
+
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            let isDarkMode = false; 
+
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+                isDarkMode = !isDarkMode;
+                themeToggleBtn.textContent = isDarkMode ? '🌙' : '☀️';
+            });
+        });
+    </script>
+</body>
+</html>
